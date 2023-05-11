@@ -19,6 +19,8 @@ struct CinemaFixture : ::testing::Test {
     const std::string LOWERCASE_VALID_SEAT = "b2";
     const std::string LOWERCASE_INVALID_SEAT = "z2";
 
+    CinemaFixture() : sut("Testiplex") {}
+
     Cinema sut;
 };
 
@@ -90,6 +92,7 @@ TEST_F(CinemaFixture, full_capacity) {
     ASSERT_EQ(fullCapacity.size(), result.success.size());
     ASSERT_EQ(0, result.taken.size());
     ASSERT_EQ(0, result.invalid.size());
+    ASSERT_EQ(0, sut.freeSeats());
 }
 
 TEST_F(CinemaFixture, invalid_immediately_returns) {
@@ -128,12 +131,17 @@ TEST_F(FirstRowBooked, not_all_seats_taken) {
 }
 
 TEST_F(FirstRowBooked, if_not_all_seats_taken_no_booking_occurs) {
+    auto initialFreeSeats = sut.freeSeats();
+
     auto result = sut.book({"a2", "a3",
                             "b1", "b2"});
     EXPECT_EQ(2, result.success.size());
     EXPECT_EQ(2, result.taken.size());
     EXPECT_EQ(0, result.invalid.size());
 
+    ASSERT_EQ(initialFreeSeats, sut.freeSeats());
+
     result = sut.book({"b1", "b2"});
     ASSERT_EQ(2, result.success.size());
+    ASSERT_EQ(initialFreeSeats - 2, sut.freeSeats());
 }

@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cctype>
 #include <mutex>
-#include <sstream>
 #include <vector>
 
 #include "../utils/utils.hpp"
@@ -22,8 +21,9 @@ struct RowCol {
 };
 
 /**
- * The class that handles the seat assignments in a cinema and keeps track of which
- * movies are showing. This latter data is shared with the movie orchestrator.
+ * The class that handles the seat assignments in a cinema. This is technically not
+ * a cinema, only one premiere in it. This way, multiple movies can be booked at the
+ * same time, with the least amount of blocking.
  *
  * Currently all cinemas have 20 seats in a 4x5 arrangement. This can be changed by
  * making the ROWxCOL dimensions configurable.
@@ -35,7 +35,8 @@ class Cinema {
     static const int COLS = 5;
 
 public:
-    Cinema() {
+    Cinema(const std::string& name)
+            : m_name(name) {
         clearSeats();
     }
 
@@ -79,6 +80,11 @@ public:
         return result;
     }
 
+    /** Used to determine whether there are still tickets available. */
+    int freeSeats() const {
+        return m_capacity;
+    }
+
     void clearSeats() {
         std::scoped_lock sl(m_bookingLock);
         for(auto& row : m_seatFree) {
@@ -89,14 +95,12 @@ public:
         m_capacity = ROWS*COLS;
     }
 
-    void registerMovie(int movieId);
-
 private:
     /**
      * Validate requested seats.
      * @param   seats The requested seats in format "a1", "b2", etc.
      * @returns       Invalid seats
-    */
+     */
     std::vector<std::string> validateSeats(const std::vector<std::string>& seats) const {
         std::vector<std::string> invalidSeats;
         for(const auto& seat : seats) {
@@ -111,7 +115,7 @@ private:
      * Make sure that seat exists in cinema.
      * It is assumed that no theatre will have more than 26 rows, so only one letter will be
      * at the beginning. Numbering is 1-indexed.
-    */
+     */
     bool isSeatValid(const std::string& seat) const {
         // min requirements are met
         if(seat.empty() || seat.size() < 2 || not std::isalpha(seat[0])) {
@@ -139,10 +143,10 @@ private:
         return rcv;
     }
 
+    const std::string m_name;
+
     bool m_seatFree[ROWS][COLS];
     int m_capacity = ROWS*COLS;
 
     std::mutex m_bookingLock;
-
-    // shared_ptr of movies shown, owned by this class
 };

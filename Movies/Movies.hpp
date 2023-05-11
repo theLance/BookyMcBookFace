@@ -7,11 +7,6 @@
 #include <boost/bimap/bimap.hpp>
 #include <boost/bimap/set_of.hpp>
 
-class MovieOrchestrator {
-    // cinemas showing movies
-    // movie can only be removed if no cinemas are showing it
-    // should include cleanse() where titles no cinemas are showing are removed
-};
 
 namespace bm = ::boost::bimaps;
 
