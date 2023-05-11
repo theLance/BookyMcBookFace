@@ -3,9 +3,12 @@
 #include <algorithm>
 #include <cctype>
 #include <mutex>
+#include <string>
+#include <sstream>
+#include <unordered_map>
 #include <vector>
 
-#include "../utils/utils.hpp"
+#include "../InputHandling/InputSanitizer.hpp"
 
 
 struct Booking {
@@ -14,30 +17,23 @@ struct Booking {
     std::vector<std::string> invalid;
 };
 
-struct RowCol {
-    RowCol(int row, int col) : r(row), c(col) {}
-    int r;
-    int c;
-};
-
 /**
- * The class that handles the seat assignments in a cinema. This is technically not
- * a cinema, only one premiere in it. This way, multiple movies can be booked at the
+ * The class that handles the seat assignments in a theater. This is technically not
+ * a theater, only one premiere in it. This way, multiple movies can be booked at the
  * same time, with the least amount of blocking.
  *
- * Currently all cinemas have 20 seats in a 4x5 arrangement. This can be changed by
+ * Currently all theaters have 20 seats in a 4x5 arrangement. This can be changed by
  * making the ROWxCOL dimensions configurable.
  */
-class Cinema {
-
-    /* Every cinema has 4 rows of 5 seats */
+class Theater {
+    /* Every theater has 4 rows of 5 seats */
     static const int ROWS = 4;
     static const int COLS = 5;
 
 public:
-    Cinema(const std::string& name)
+    Theater(const std::string& name)
             : m_name(name) {
-        clearSeats();
+        fillSeatNames();
     }
 
     /**
@@ -51,7 +47,10 @@ public:
      * @returns         Invalid seats if any (without any futher checks) or the free and non-free seats.
      *                  Returns all as invalid if more seats are trying to be booked than the capacity.
      */
-    Booking book(const std::vector<std::string>& booking) {
+    Booking book(const BookingInput& booking) {
+        if(booking.empty()) {
+            return {};
+        }
         if(booking.size() > m_capacity) {
             return {{}, {}, booking};
         }
@@ -62,18 +61,21 @@ public:
             return result;
         }
 
-        auto seatsRequested = convertToRowCol(booking);
+        std::vector<decltype(m_seatsFree)::iterator> freeSeats;
+        freeSeats.reserve(booking.size());
         std::scoped_lock sl(m_bookingLock);
-        for(auto idx = 0; idx < seatsRequested.size(); ++idx) {
-            if(m_seatFree[seatsRequested[idx].r][seatsRequested[idx].c]) {
-                result.success.push_back(booking[idx]);
+        for(const auto& bookedSeat : booking) {
+            auto it = m_seatsFree.find(bookedSeat);
+            if(it->second) {
+                result.success.push_back(bookedSeat);
+                freeSeats.push_back(it);
             } else {
-                result.taken.push_back(booking[idx]);
+                result.taken.push_back(bookedSeat);
             }
         }
         if(result.taken.empty()) {
-            for(const auto& seat : seatsRequested) {
-                m_seatFree[seat.r][seat.c] = false;
+            for(auto& it : freeSeats) {
+                it->second = false;
                 --m_capacity;
             }
         }
@@ -87,15 +89,23 @@ public:
 
     void clearSeats() {
         std::scoped_lock sl(m_bookingLock);
-        for(auto& row : m_seatFree) {
-            for(auto& seat : row) {
-                seat = true;
-            }
+        for(auto& seat : m_seatsFree) {
+            seat.second = true;
         }
         m_capacity = ROWS*COLS;
     }
 
 private:
+    void fillSeatNames() {
+        for(int row = 0; row < ROWS; ++row) {
+            for(int col = 1; col <= COLS; ++col) {
+                std::stringstream ss;
+                ss << char('a' + row) << col;
+                m_seatsFree[ss.str()] = true;
+            }
+        }
+    }
+
     /**
      * Validate requested seats.
      * @param   seats The requested seats in format "a1", "b2", etc.
@@ -111,41 +121,13 @@ private:
         return invalidSeats;
     }
 
-    /**
-     * Make sure that seat exists in cinema.
-     * It is assumed that no theatre will have more than 26 rows, so only one letter will be
-     * at the beginning. Numbering is 1-indexed.
-     */
+    /** Make sure that seat exists in theater. */
     bool isSeatValid(const std::string& seat) const {
-        // min requirements are met
-        if(seat.empty() || seat.size() < 2 || not std::isalpha(seat[0])) {
-            return false;
-        }
-        // row exists
-        if(int(std::tolower(seat[0]) - 'a') >= ROWS) {
-            return false;
-        }
-        // numeric part fully numeric
-        std::string numPart(seat.begin() + 1, seat.end());
-        if(std::any_of(numPart.begin(), numPart.end(), [](int c){ return not std::isdigit(c); })) {
-            return false;
-        }
-        int col(strToInt(numPart));
-        return col > 0 && col <= COLS;
-    }
-
-    /// Converts the seat strings to row/col. Assumes seat number is valid. Cols are 1-indexed!
-    std::vector<RowCol> convertToRowCol(const std::vector<std::string>& seats) const {
-        std::vector<RowCol> rcv;
-        for(const auto& seat : seats) {
-            rcv.emplace_back( int(std::tolower(seat[0]) - 'a'), strToInt({seat.begin()+1, seat.end()}) - 1 );
-        }
-        return rcv;
+        return m_seatsFree.find(seat) != m_seatsFree.end();
     }
 
     const std::string m_name;
-
-    bool m_seatFree[ROWS][COLS];
+    std::unordered_map<std::string, bool> m_seatsFree;
     int m_capacity = ROWS*COLS;
 
     std::mutex m_bookingLock;

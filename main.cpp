@@ -1,4 +1,4 @@
-#include "Movies/CinemaOrchestrator.hpp"
+#include "Movies/TheaterOrchestrator.hpp"
 
 
 class Runner {
@@ -9,6 +9,6 @@ private:
 };
 
 int main() {
-    CinemaOrchestrator mo;
+    TheaterOrchestrator mo;
     return 0;
 }
