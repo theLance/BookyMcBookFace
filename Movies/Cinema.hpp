@@ -12,7 +12,13 @@
 struct Booking {
     std::vector<std::string> success;
     std::vector<std::string> taken;
-    std::vector<std::string> doesntExist;
+    std::vector<std::string> invalid;
+};
+
+struct RowCol {
+    RowCol(int row, int col) : r(row), c(col) {}
+    int r;
+    int c;
 };
 
 /**
@@ -21,20 +27,68 @@ struct Booking {
  * 
  * Currently all cinemas have 20 seats in a 4x5 arrangement. This can be changed by
  * making the ROWxCOL dimensions configurable.
-*/
+ */
 class Cinema {
-    struct RowCol {
-        RowCol(int row, int col) : r(row), c(col) {}
-        int r;
-        int c;
-    };
 
     /* Every cinema has 4 rows of 5 seats */
     static const int ROWS = 4;
     static const int COLS = 5;
 
 public:
-    Booking book(const std::vector<std::string>& booking);
+    Cinema() {
+        clearSeats();
+    }
+
+    /**
+     * When booking, the invalid results are filtered out first. These are returned without checking
+     * for free seats, since it is clearly a user error.
+     * Then, the seats are checked for availability. This is returned without booking, if there are
+     * seats that are not available, to offer the user the chance to book only the free ones.
+     * If all seats are free, booking is done.
+     * 
+     * @param   booking The requested seats in format "a1", "b2", etc.
+     * @returns         Invalid seats if any (without any futher checks) or the free and non-free seats.
+     *                  Returns all as invalid if more seats are trying to be booked than the capacity.
+     */
+    Booking book(const std::vector<std::string>& booking) {
+        if(booking.size() > m_capacity) {
+            return {{}, {}, booking};
+        }
+
+        Booking result;
+        result.invalid = validateSeats(booking);
+        if(result.invalid.size()) {
+            return result;
+        }
+
+        auto seatsRequested = convertToRowCol(booking);
+        std::scoped_lock sl(m_bookingLock);
+        for(auto idx = 0; idx < seatsRequested.size(); ++idx) {
+            if(m_seatFree[seatsRequested[idx].r][seatsRequested[idx].c]) {
+                result.success.push_back(booking[idx]);
+            } else {
+                result.taken.push_back(booking[idx]);
+            }
+        }
+        if(result.taken.empty()) {
+            for(const auto& seat : seatsRequested) {
+                m_seatFree[seat.r][seat.c] = false;
+                --m_capacity;
+            }
+        }
+        return result;
+    }
+
+    void clearSeats() {
+        std::scoped_lock sl(m_bookingLock);
+        for(auto& row : m_seatFree) {
+            for(auto& seat : row) {
+                seat = true;
+            }
+        }
+        m_capacity = ROWS*COLS;
+    }
+
     void registerMovie(int movieId);
 
 private:
@@ -85,7 +139,8 @@ private:
         return rcv;
     }
 
-    bool m_seats[ROWS][COLS] = { false };
+    bool m_seatFree[ROWS][COLS];
+    int m_capacity = ROWS*COLS;
 
     std::mutex m_bookingLock;
 
