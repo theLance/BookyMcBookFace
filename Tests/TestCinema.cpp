@@ -16,7 +16,7 @@ struct CinemaFixture : ::testing::Test {
     const std::string VALID_SEAT_3 = "C3";
     const std::string VALID_SEAT_4_LAST = "D5";
 
-    const std::string LOWERCASE_VALID_SEAT = "b2";    
+    const std::string LOWERCASE_VALID_SEAT = "b2";
     const std::string LOWERCASE_INVALID_SEAT = "z2";
 
     Cinema sut;
@@ -71,8 +71,8 @@ TEST_F(CinemaFixture, row_col_conversion) {
 
 /* booking */
 TEST_F(CinemaFixture, cant_book_more_than_capacity) {
-    std::vector<std::string> moreThanFull = {"a1", "a2", "a3", "a4", "a5", 
-                                             "b1", "b2", "b3", "b4", "b5", 
+    std::vector<std::string> moreThanFull = {"a1", "a2", "a3", "a4", "a5",
+                                             "b1", "b2", "b3", "b4", "b5",
                                              "c1", "c2", "c3", "c4", "c5", "c6",
                                              "d1", "d2", "d3", "d4", "d5"};
     auto result = sut.book(moreThanFull);
@@ -82,8 +82,8 @@ TEST_F(CinemaFixture, cant_book_more_than_capacity) {
 }
 
 TEST_F(CinemaFixture, full_capacity) {
-    std::vector<std::string> fullCapacity = {"a1", "a2", "a3", "a4", "a5", 
-                                             "b1", "b2", "b3", "b4", "b5", 
+    std::vector<std::string> fullCapacity = {"a1", "a2", "a3", "a4", "a5",
+                                             "b1", "b2", "b3", "b4", "b5",
                                              "c1", "c2", "c3", "c4", "c5",
                                              "d1", "d2", "d3", "d4", "d5"};
     auto result = sut.book(fullCapacity);
@@ -93,8 +93,8 @@ TEST_F(CinemaFixture, full_capacity) {
 }
 
 TEST_F(CinemaFixture, invalid_immediately_returns) {
-    std::vector<std::string> moreThanFull = {"a1", "a9", "a3", "a4", "a5", 
-                                             "b1", "b9", "b3", "b4", "b5", 
+    std::vector<std::string> moreThanFull = {"a1", "a9", "a3", "a4", "a5",
+                                             "b1", "b9", "b3", "b4", "b5",
                                              "c1", "c9", "c3", "c4", "c5",
                                              "d1", "d2", "d3", "d4", "d5"};
     auto result = sut.book(moreThanFull);

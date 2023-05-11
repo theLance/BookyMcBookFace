@@ -24,7 +24,7 @@ struct RowCol {
 /**
  * The class that handles the seat assignments in a cinema and keeps track of which
  * movies are showing. This latter data is shared with the movie orchestrator.
- * 
+ *
  * Currently all cinemas have 20 seats in a 4x5 arrangement. This can be changed by
  * making the ROWxCOL dimensions configurable.
  */
@@ -45,7 +45,7 @@ public:
      * Then, the seats are checked for availability. This is returned without booking, if there are
      * seats that are not available, to offer the user the chance to book only the free ones.
      * If all seats are free, booking is done.
-     * 
+     *
      * @param   booking The requested seats in format "a1", "b2", etc.
      * @returns         Invalid seats if any (without any futher checks) or the free and non-free seats.
      *                  Returns all as invalid if more seats are trying to be booked than the capacity.
@@ -108,7 +108,7 @@ private:
     }
 
     /**
-     * Make sure that seat exists in cinema. 
+     * Make sure that seat exists in cinema.
      * It is assumed that no theatre will have more than 26 rows, so only one letter will be
      * at the beginning. Numbering is 1-indexed.
     */
