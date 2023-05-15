@@ -19,6 +19,8 @@ class MovieDb {
                       bm::set_of<bm::tagged< int, id_t >>
                       > MovieMap;
 public:
+    typedef std::vector<std::string> Titles;
+
     static const int ID_NOT_FOUND = -1;
 
     MovieDb() {
@@ -31,7 +33,7 @@ public:
         }
     }
 
-    std::vector<std::string> listMovies() const {
+    Titles listMovies() const {
         if(m_moviesChanged) {
             reloadMovieTitleList();
         }
@@ -90,5 +92,5 @@ private:
     bool m_moviesChangedSinceLoad = false;
 
     mutable bool m_moviesChanged = false;
-    mutable std::vector<std::string> m_movieTitles;
+    mutable Titles m_movieTitles;
 };
