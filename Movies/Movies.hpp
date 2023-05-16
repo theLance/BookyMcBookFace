@@ -40,7 +40,7 @@ public:
         return m_movieTitles;
     }
 
-    int getMovieIdForTitle(const std::string& title) {
+    int getMovieIdForTitle(const std::string& title) const {
         auto it = m_movieIds.by<title_t>().find(title);
         if(it == m_movieIds.by<title_t>().end()) {
             return ID_NOT_FOUND;
@@ -48,7 +48,7 @@ public:
         return it->get_right();
     }
 
-    std::string getMovieTitleForId(int id) {
+    std::string getMovieTitleForId(int id) const {
         auto it = m_movieIds.by<id_t>().find(id);
         if(it == m_movieIds.by<id_t>().end()) {
             return "";
