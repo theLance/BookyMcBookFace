@@ -8,7 +8,7 @@ OUT = run.exe
 OBJFILES  := $(SRCFILES:%.cpp=%.o)
 TSTOBJFILES := $(TSTFILES:%.cpp=%.o)
 
-CMPFLG = -I.
+CMPFLG = -I. -O3
 LNKFLG = -I. -lm
 TSTLNKFLG = -I. -lm -lgtest_main -lgtest
 
