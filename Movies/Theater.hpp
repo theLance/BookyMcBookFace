@@ -36,6 +36,10 @@ public:
         fillSeatNames();
     }
 
+    const std::string& name() const {
+        return m_name;
+    }
+
     // The destructor could check if the time of showing has already happened and in case it has not
     // it could initiate a refund. But this is probably outside of the scope of this task.
 
