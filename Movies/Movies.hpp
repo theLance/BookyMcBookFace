@@ -56,10 +56,12 @@ public:
         return it->get_left();
     }
 
-    void addMovie(const std::string& title) {
+    int addMovie(const std::string& title) {
         m_moviesChangedSinceLoad = true;
         m_moviesChanged = true;
-        m_movieIds.insert(MovieMap::value_type(title, getFreeId()));
+        int id = getFreeId();
+        m_movieIds.insert(MovieMap::value_type(title, id));
+        return id;
     }
 
     void removeMovie(const std::string& title) {
