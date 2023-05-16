@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <mutex>
 #include <string>
 #include <unordered_map>
@@ -8,12 +9,8 @@
 #include "Movies.hpp"
 
 
-typedef std::unordered_map<int, std::unordered_map<std::string, Theater>> MovieToTheaterMapping;
-
-struct Theaters {
-    std::vector<std::string> names;
-    std::vector<Theater*> theaters;
-};
+typedef std::unordered_map<int, std::unordered_map<std::string, std::shared_ptr<Theater>>> MovieToTheaterMapping;
+typedef std::vector<std::shared_ptr<Theater>> Theaters;
 
 /**
  * Class overseeing the configurations for theaters and the movie DB, including which theater is showing which movie.
@@ -42,11 +39,9 @@ public:
     void registerTheaterShowingMovie(const std::string& theater, const std::string& movie) {
         int movieId = m_movieDb.getMovieIdForTitle(movie);
         if(movieId == MovieDb::ID_NOT_FOUND) {
-            std::scoped_lock sl(m_movieDbLock);
             m_movieDb.addMovie(movie);
         }
-        std::scoped_lock sl(m_theaterListLock);
-        m_theaters[movieId].emplace(theater, theater);
+        m_theaters[movieId].emplace(theater, std::make_shared<Theater>(theater));
     }
 
     /**
@@ -69,7 +64,6 @@ public:
         auto theatersShowingMovie = m_theaters.find(movieId);
         if(theatersShowingMovie == m_theaters.end()) {
             // since the movie is no longer available, it should not be in the DB at all
-            std::scoped_lock sl(m_movieDbLock);
             m_movieDb.removeMovie(movie);
             return OperationResult::Removal::NO_THEATER_FOR_MOVIE;
         }
@@ -81,7 +75,6 @@ public:
 
         bool movieNoLongerAvailable = false;
         {
-            std::scoped_lock sl(m_theaterListLock);
             theatersShowingMovie->second.erase(theater);
             if(theatersShowingMovie->second.empty()) {
                 movieNoLongerAvailable = true;
@@ -90,7 +83,6 @@ public:
         }
 
         if(movieNoLongerAvailable) {
-            std::scoped_lock sl(m_movieDb);
             m_movieDb.removeMovie(movie);
         }
         return OperationResult::Removal::SUCCESSFUL;
@@ -101,14 +93,20 @@ public:
         return m_movieDb.listMovies();
     }
 
-    Theaters listTheatersPlayingMovie() const {
-        //
+    Theaters listTheatersPlayingMovie(const std::string& movie) const {
+        auto resIt = m_theaters.find(m_movieDb.getMovieIdForTitle(movie));
+        if(resIt == m_theaters.end()) {
+            return {};
+        }
+
+        Theaters result;
+        for(auto& entry : resIt->second) {
+            result.push_back(entry.second);
+        }
+        return result;
     }
 
 private:
     MovieToTheaterMapping m_theaters;
     MovieDb m_movieDb;
-
-    std::mutex m_theaterListLock;
-    std::mutex m_movieDbLock;
 };
