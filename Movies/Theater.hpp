@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../InputHandling/InputSanitizer.hpp"
+#include "InputHandling/InputSanitizer.hpp"
 
 
 struct Booking {

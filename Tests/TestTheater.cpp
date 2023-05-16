@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 
 #define private public
-#include "../Movies/Theater.hpp"
+#include "Movies/Theater.hpp"
 #undef private
 
 struct TheaterFixture : ::testing::Test {

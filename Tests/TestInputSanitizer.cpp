@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "../InputHandling/InputSanitizer.hpp"
+#include "InputHandling/InputSanitizer.hpp"
 
 using ::testing::ElementsAre;
 

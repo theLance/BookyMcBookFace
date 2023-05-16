@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "../Movies/Movies.hpp"
+#include "Movies/Movies.hpp"
 
 struct MovieFixture : ::testing::Test {
     MovieDb sut;
