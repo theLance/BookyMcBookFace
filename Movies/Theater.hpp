@@ -10,11 +10,12 @@
 
 #include "InputHandling/InputSanitizer.hpp"
 
+typedef std::vector<std::string> Seats;
 
 struct Booking {
-    std::vector<std::string> success;
-    std::vector<std::string> taken;
-    std::vector<std::string> invalid;
+    Seats success;
+    Seats taken;
+    Seats invalid;
 };
 
 /**
@@ -90,8 +91,19 @@ public:
     }
 
     /** Used to determine whether there are still tickets available. */
-    int freeSeats() const {
+    int freeCapacity() const {
         return m_capacity;
+    }
+
+    /** Get a list of free seats in the theater. */
+    Seats freeSeats() const {
+        Seats result;
+        for(const auto& seat : m_seatsFree) {
+            if(seat.second) {
+                result.push_back(seat.first);
+            }
+        }
+        return result;
     }
 
     void clearSeats() {
@@ -118,8 +130,8 @@ private:
      * @param   seats The requested seats in format "a1", "b2", etc.
      * @returns       Invalid seats
      */
-    std::vector<std::string> validateSeats(const std::vector<std::string>& seats) const {
-        std::vector<std::string> invalidSeats;
+    Seats validateSeats(const Seats& seats) const {
+        Seats invalidSeats;
         for(const auto& seat : seats) {
             if(not isSeatValid(seat)) {
                 invalidSeats.push_back(seat);

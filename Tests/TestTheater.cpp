@@ -77,7 +77,7 @@ TEST_F(TheaterFixture, full_capacity) {
     ASSERT_EQ(fullCapacity.size(), result.success.size());
     ASSERT_EQ(0, result.taken.size());
     ASSERT_EQ(0, result.invalid.size());
-    ASSERT_EQ(0, sut.freeSeats());
+    ASSERT_EQ(0, sut.freeCapacity());
 }
 
 TEST_F(TheaterFixture, invalid_immediately_returns) {
@@ -89,6 +89,36 @@ TEST_F(TheaterFixture, invalid_immediately_returns) {
     ASSERT_EQ(3, result.invalid.size());
     ASSERT_EQ(0, result.success.size());
     ASSERT_EQ(0, result.taken.size());
+}
+
+Seats whenSorted(Seats seats) {
+    std::sort(seats.begin(), seats.end());
+    return seats;
+}
+
+TEST_F(TheaterFixture, before_anything_booked_all_seats_free) {
+    std::vector<std::string> fullCapacity = {"a1", "a2", "a3", "a4", "a5",
+                                             "b1", "b2", "b3", "b4", "b5",
+                                             "c1", "c2", "c3", "c4", "c5",
+                                             "d1", "d2", "d3", "d4", "d5"};
+
+    ASSERT_EQ(fullCapacity, whenSorted(sut.freeSeats()));
+}
+
+TEST_F(TheaterFixture, free_seats_reflect_bookings) {
+    sut.book({"a1", "a2", "a3"});
+    std::vector<std::string> expected =     {                  "a4", "a5",
+                                             "b1", "b2", "b3", "b4", "b5",
+                                             "c1", "c2", "c3", "c4", "c5",
+                                             "d1", "d2", "d3", "d4", "d5"};
+    ASSERT_EQ(expected, whenSorted(sut.freeSeats()));
+
+    sut.book({"b2", "b3", "c4"});
+    std::vector<std::string> expected2 =    {                  "a4", "a5",
+                                             "b1",             "b4", "b5",
+                                             "c1", "c2", "c3",       "c5",
+                                             "d1", "d2", "d3", "d4", "d5"};
+    ASSERT_EQ(expected2, whenSorted(sut.freeSeats()));
 }
 
 struct FirstRowBooked : TheaterFixture {
@@ -116,7 +146,7 @@ TEST_F(FirstRowBooked, not_all_seats_taken) {
 }
 
 TEST_F(FirstRowBooked, if_not_all_seats_taken_no_booking_occurs) {
-    auto initialFreeSeats = sut.freeSeats();
+    auto initialFreeSeats = sut.freeCapacity();
 
     auto result = sut.book({"a2", "a3",
                             "b1", "b2"});
@@ -124,9 +154,9 @@ TEST_F(FirstRowBooked, if_not_all_seats_taken_no_booking_occurs) {
     EXPECT_EQ(2, result.taken.size());
     EXPECT_EQ(0, result.invalid.size());
 
-    ASSERT_EQ(initialFreeSeats, sut.freeSeats());
+    ASSERT_EQ(initialFreeSeats, sut.freeCapacity());
 
     result = sut.book({"b1", "b2"});
     ASSERT_EQ(2, result.success.size());
-    ASSERT_EQ(initialFreeSeats - 2, sut.freeSeats());
+    ASSERT_EQ(initialFreeSeats - 2, sut.freeCapacity());
 }
