@@ -36,6 +36,9 @@ public:
         fillSeatNames();
     }
 
+    // The destructor could check if the time of showing has already happened and in case it has not
+    // it could initiate a refund. But this is probably outside of the scope of this task.
+
     /**
      * When booking, the invalid results are filtered out first. These are returned without checking
      * for free seats, since it is clearly a user error.
