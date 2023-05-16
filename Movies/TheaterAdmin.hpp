@@ -39,7 +39,7 @@ public:
     void registerTheaterShowingMovie(const std::string& theater, const std::string& movie) {
         int movieId = m_movieDb.getMovieIdForTitle(movie);
         if(movieId == MovieDb::ID_NOT_FOUND) {
-            m_movieDb.addMovie(movie);
+            movieId = m_movieDb.addMovie(movie);
         }
         m_theaters[movieId].emplace(theater, std::make_shared<Theater>(theater));
     }
