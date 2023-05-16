@@ -101,3 +101,25 @@ TEST_F(OneMovieAlreadyInOneTheater, db_not_cleared_if_other_theater_still_playin
 
     ASSERT_FALSE(sut.listCurrentMovies().empty());
 }
+
+struct OneUniqueMovieInEachTheater : OneMovieAlreadyInOneTheater {
+    const std::string NON_EXISTENT_MOVIE = "nope";
+
+    OneUniqueMovieInEachTheater() {
+        sut.registerTheaterShowingMovie(OTHER_THEATER_NAME, MOVIE_2);
+    }
+};
+
+TEST_F(OneUniqueMovieInEachTheater, successful_removal) {
+    ASSERT_EQ(TheaterAdmin::OperationResult::SUCCESSFUL, sut.removeMovieFromTheater(THEATER_NAME, MOVIE_1));
+}
+
+TEST_F(OneUniqueMovieInEachTheater, movie_to_be_removed_doesnt_exist) {
+    ASSERT_EQ(TheaterAdmin::OperationResult::MOVIE_NOT_FOUND,
+              sut.removeMovieFromTheater(THEATER_NAME, NON_EXISTENT_MOVIE));
+}
+
+TEST_F(OneUniqueMovieInEachTheater, movie_to_be_removed_doesnt_play_in_theater) {
+    ASSERT_EQ(TheaterAdmin::OperationResult::THEATER_NOT_SHOWING_MOVIE,
+              sut.removeMovieFromTheater(THEATER_NAME, MOVIE_2));
+}
