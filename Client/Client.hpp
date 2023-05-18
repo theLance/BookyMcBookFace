@@ -11,6 +11,7 @@
 
 
 typedef std::unordered_map<std::string, std::shared_ptr<Theater>> TheaterMap;
+
 struct TheaterCapacity {
     TheaterCapacity(const std::string& n, int c) : name(n), capacity(c) {}
 
@@ -18,6 +19,16 @@ struct TheaterCapacity {
     int capacity;
 };
 typedef std::vector<TheaterCapacity> AvailableTheaters;
+
+enum CheckShowMessage {
+    OK = 1,
+    NOT_FOUND,
+    CANCELLED
+};
+struct BookingResult {
+    CheckShowMessage msg;
+    Booking booking;
+};
 
 
 /**
@@ -27,12 +38,6 @@ typedef std::vector<TheaterCapacity> AvailableTheaters;
  * free seats therein, and to book tickets.
  */
 class Client {
-    enum CheckShowMessage {
-        OK = 1,
-        NOT_FOUND,
-        CANCELLED
-    };
-
     struct CheckShowResult {
         CheckShowMessage msg;
         TheaterMap::iterator it;
@@ -91,15 +96,16 @@ public:
      * @param theater            The selected theater's showing of the movie.
      * @param rawBookingString   A string of seats that the user wishes to book.
      *
-     * @returns  //
+     * @returns  An indicator of whether the booking was successful and a list of free/taken/invalid
+     *           seats. When all seats were avaiable, the booking took place.
      */
-    Booking book(const std::string& theater, const std::string& rawBookingString) {
+    BookingResult book(const std::string& theater, const std::string& rawBookingString) {
         auto input = convertAndSanitizeInput(rawBookingString);
         auto res = checkShowInCurrent(theater);
         if(res.msg != CheckShowMessage::OK) {
-            return {{},{},input};
+            return {res.msg, {{},{},input}};
         }
-        return res.it->second->book(input);
+        return {res.msg, {res.it->second->book(input)}};
     }
 
 protected:

@@ -52,9 +52,9 @@ TEST_F(ClientFixture, get_free_seats__booking_makes_seats_not_free) {
     EXPECT_EQ(fullCapacity, sut.listFreeSeatsForTheater(THEATER_NAME));
 
     auto result = sut.book(THEATER_NAME, "a1,a2,a3");
-    ASSERT_EQ(3, result.success.size());
-    ASSERT_EQ(0, result.taken.size());
-    ASSERT_EQ(0, result.invalid.size());
+    ASSERT_EQ(3, result.booking.success.size());
+    ASSERT_EQ(0, result.booking.taken.size());
+    ASSERT_EQ(0, result.booking.invalid.size());
     std::vector<std::string> expected = {                  "a4", "a5",
                                          "b1", "b2", "b3", "b4", "b5",
                                          "c1", "c2", "c3", "c4", "c5",

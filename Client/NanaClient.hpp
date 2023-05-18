@@ -186,17 +186,27 @@ private:
                     msg();
                     return;
                 }
+
                 auto res = book(it->second->name(), bookings.text());
-                if(res.taken.empty() && res.invalid.empty()) {
+                if(res.msg == CheckShowMessage::CANCELLED) {
+                    nana::msgbox msg("Booking FAILURE");
+                    msg << "We're sorry, the movie '" << m_selectedMovie << "' is no longer playing "
+                        << "in this theater.";
+                    msg();
+                    return;
+                }
+
+                if(res.msg == CheckShowMessage::OK &&
+                   res.booking.taken.empty() && res.booking.invalid.empty()) {
                     nana::msgbox msg("Booking SUCCESSFUL!");
-                    msg << "Booked seats:\n" << formatSeatNames(res.success);
+                    msg << "Booked seats:\n" << formatSeatNames(res.booking.success);
                     msg();
                 } else {
                     nana::msgbox msg("Booking FAILURE");
-                    if(res.invalid.size()) {
-                        msg << "The following seats are invalid:\n" << formatSeatNames(res.invalid);
+                    if(res.booking.invalid.size()) {
+                        msg << "The following seats are invalid:\n" << formatSeatNames(res.booking.invalid);
                     } else {
-                        msg << "The following seats are taken:\n" << formatSeatNames(res.taken);
+                        msg << "The following seats are taken:\n" << formatSeatNames(res.booking.taken);
                     }
                     msg();
                 }
