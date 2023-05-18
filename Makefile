@@ -7,11 +7,15 @@ OUT = run.exe
 
 RMCMD = rm -f
 
+NANALIBPATH = ../nana
+NANAINCLUDE = $(NANALIBPATH)/include
+NANALIBS = -lnana -lgdi32 -lcomdlg32 -lz
+
 OBJFILES  := $(SRCFILES:%.cpp=%.o)
 TSTOBJFILES := $(TSTFILES:%.cpp=%.o)
 
-CMPFLG = -I. -O3
-LNKFLG = -I. -lm
+CMPFLG = -I. -O3 -I$(NANAINCLUDE)
+LNKFLG = -I. -I$(NANAINCLUDE) -L$(NANALIBPATH) -lm $(NANALIBS)
 TSTLNKFLG = -I. -lm -lgtest_main -lgtest
 
 .PHONY: run
