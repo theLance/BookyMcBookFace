@@ -69,7 +69,7 @@ public:
         return res.it->second->book(input);
     }
 
-private:
+protected:
     CheckShowResult checkShowInCurrent(const std::string& theater) {
         auto it = m_theatersForMovie.find(theater);
         if(it == m_theatersForMovie.end()) {
@@ -82,7 +82,8 @@ private:
         return {CheckShowMessage::OK, it};
     }
 
-    TheaterAdmin& m_admin;
-
     TheaterMap m_theatersForMovie;
+
+private:
+    TheaterAdmin& m_admin;
 };
