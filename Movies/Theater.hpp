@@ -106,6 +106,7 @@ public:
         return result;
     }
 
+    /** Make all the seats free in the theater. */
     void clearSeats() {
         std::scoped_lock sl(m_bookingLock);
         for(auto& seat : m_seatsFree) {

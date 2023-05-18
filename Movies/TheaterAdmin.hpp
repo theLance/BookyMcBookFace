@@ -16,9 +16,6 @@ typedef std::vector<std::shared_ptr<Theater>> Theaters;
  * Class overseeing the configurations for theaters and the movie DB, including which theater is showing which movie.
  */
 class TheaterAdmin {
-    // theaters showing movies
-    // movie can only be removed if no theaters are showing it
-    // should include cleanse() where titles no theaters are showing are removed
 public:
     struct OperationResult {
         enum Removal {
@@ -93,6 +90,9 @@ public:
         return m_movieDb.listMovies();
     }
 
+    /**
+     * Fetch an array of theaters currently playing the selected movie.
+     */
     Theaters listTheatersPlayingMovie(const std::string& movie) const {
         auto resIt = m_theaters.find(m_movieDb.getMovieIdForTitle(movie));
         if(resIt == m_theaters.end()) {

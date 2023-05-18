@@ -10,7 +10,11 @@
 
 namespace bm = ::boost::bimaps;
 
-/** If two movies have the same name, the production year must be added, otherwise insertion will fail. */
+/**
+ * A database for the currently playing movies.
+ *
+ * NOTE: If two movies have the same name, the production year must be added, otherwise insertion will fail.
+ */
 class MovieDb {
     struct title_t {};
     struct id_t {};
@@ -33,6 +37,7 @@ public:
         }
     }
 
+    /// List all movies in the DB.
     Titles listMovies() const {
         if(m_moviesChanged) {
             reloadMovieTitleList();
@@ -40,6 +45,7 @@ public:
         return m_movieTitles;
     }
 
+    /// Get the unique identifier for a movie in the DB.
     int getMovieIdForTitle(const std::string& title) const {
         auto it = m_movieIds.by<title_t>().find(title);
         if(it == m_movieIds.by<title_t>().end()) {
@@ -48,6 +54,7 @@ public:
         return it->get_right();
     }
 
+    /// Get the title of a movie belonging to the unique identifier.
     std::string getMovieTitleForId(int id) const {
         auto it = m_movieIds.by<id_t>().find(id);
         if(it == m_movieIds.by<id_t>().end()) {
