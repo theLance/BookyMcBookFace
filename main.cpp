@@ -1,14 +1,22 @@
-#include "Movies/TheaterOrchestrator.hpp"
+#include "Movies/TheaterAdmin.hpp"
+#include "Client/NanaClient.hpp"
+#include "Client/AdminGui.hpp"
 
+#include <thread>
 
-class Runner {
-public:
-    void start();
-    void stop();
-private:
-};
 
 int main() {
-    TheaterOrchestrator mo;
+    TheaterAdmin mo;
+
+    std::thread client([&mo]{
+        NanaClient nc(mo);
+        nc.mainWindow();
+    });
+
+    AdminGui adg(mo);
+    adg.mainWindow();
+
+    client.join();
+
     return 0;
 }
