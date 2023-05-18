@@ -24,6 +24,7 @@ public:
         for(auto& title : m_movieCache) {
             titles.push_back(title);
         }
+
         titles.events().selected([this](const nana::arg_combox& sel){
             m_selectedMovie = sel.widget.caption();
         });
@@ -32,6 +33,13 @@ public:
         refreshMovies.events().click([&]{
             nana::msgbox msg("List of currently playing movies");
             m_movieCache = listAvailableMovies();
+
+            // this part should be a separate function, but then nana segfaults
+            titles.clear();
+            for(auto& title : m_movieCache) {
+                titles.push_back(title);
+            }
+
             msg << formatNames(m_movieCache);
             msg();
         });
