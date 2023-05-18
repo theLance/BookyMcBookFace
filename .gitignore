@@ -1,0 +1,6 @@
+.gitconfig
+.vscode/
+build/
+tests.exe
+run.exe
+*.o
