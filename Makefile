@@ -1,6 +1,5 @@
 SRCFILES := $(wildcard Movies/*.cpp InputHandling/*.cpp)
 TSTFILES := $(wildcard Tests/*.cpp)
-OUTDIR = artifacts
 TDIR = Tests
 TSTOUT = tests.exe
 OUT = run.exe
@@ -19,15 +18,14 @@ LNKFLG = -I. -I$(NANAINCLUDE) -L$(NANALIBPATH) -lm $(NANALIBS)
 TSTLNKFLG = -I. -lm -lgtest_main -lgtest
 
 .PHONY: run
-run: $(OUTDIR)/$(OUT)
-	@echo $(OUTDIR)/$(OUT)
-	$(OUTDIR)/$(OUT)
+run: $(OUT)
+	./$(OUT)
 
-$(OUTDIR)/$(OUT): $(OBJFILES)
+$(OUT): $(OBJFILES)
 	g++ $(CMPFLG) -c main.cpp -o main.o
 	g++ $(OBJFILES) main.o $(LNKFLG) -o $@
 
-$(OUTDIR)/$(TSTOUT) : $(OBJFILES) $(TSTOBJFILES)
+$(TSTOUT) : $(OBJFILES) $(TSTOBJFILES)
 	@echo "--> Link obj files"
 	@echo $(OBJFILES)
 	@echo $(TSTOBJFILES)
@@ -37,11 +35,10 @@ $(OUTDIR)/$(TSTOUT) : $(OBJFILES) $(TSTOBJFILES)
 	g++ $(CMPFLG) -c $< -o $@
 
 .PHONY: tst
-tst: $(OUTDIR)/$(TSTOUT)
-	@echo $(OUTDIR)/$(TSTOUT)
-	$(OUTDIR)/$(TSTOUT)
+tst: $(TSTOUT)
+	./$(TSTOUT)
 
 # TODO: OS-independent delete
 .PHONY: clean
 clean:
-	@$(RMCMD) $(OUTDIR)/$(TSTOUT) $(OUTDIR)/$(OUT) $(OBJFILES) $(TSTOBJFILES)
+	@$(RMCMD) $(TSTOUT) $(OUT) $(OBJFILES) $(TSTOBJFILES)
