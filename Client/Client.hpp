@@ -9,6 +9,7 @@
 #include "InputHandling/InputSanitizer.hpp"
 #include "Movies/TheaterAdmin.hpp"
 
+
 typedef std::unordered_map<std::string, std::shared_ptr<Theater>> TheaterMap;
 struct TheaterCapacity {
     TheaterCapacity(const std::string& n, int c) : name(n), capacity(c) {}
@@ -18,6 +19,13 @@ struct TheaterCapacity {
 };
 typedef std::vector<TheaterCapacity> AvailableTheaters;
 
+
+/**
+ * The booking client for the theaters.
+ *
+ * Connects to the TheaterAdmin to get information on currently playing movies, theaters playing them,
+ * free seats therein, and to book tickets.
+ */
 class Client {
     enum CheckShowMessage {
         OK = 1,
@@ -37,6 +45,13 @@ public:
         return m_admin.listCurrentMovies();
     }
 
+    /**
+     * List the theaters playing the selected movie.
+     *
+     * @param movie  The selected movie.
+     *
+     * @returns A list of theaters and number of available seats therein.
+     */
     AvailableTheaters listTheatersPlayingMovie(const std::string& movie) {
         m_theatersForMovie.clear();
 
@@ -50,6 +65,16 @@ public:
         return result;
     }
 
+    /**
+     * Get the list of free seats in a given theater playing a movie.
+     *
+     * This is not the list of all the seats for all the movies in a theater, since a Theater
+     * instance is a given movie in a given theater.
+     *
+     * @param theater  A given theater's showing of a movie.
+     *
+     * @returns An array of seats that are currently free.
+     */
     Seats listFreeSeatsForTheater(const std::string& theater) {
         auto res = checkShowInCurrent(theater);
         if(res.msg != CheckShowMessage::OK) {
@@ -60,6 +85,14 @@ public:
         return result;
     }
 
+    /**
+     * Book a set of seats for a showing of a movie.
+     *
+     * @param theater            The selected theater's showing of the movie.
+     * @param rawBookingString   A string of seats that the user wishes to book.
+     *
+     * @returns  //
+     */
     Booking book(const std::string& theater, const std::string& rawBookingString) {
         auto input = convertAndSanitizeInput(rawBookingString);
         auto res = checkShowInCurrent(theater);

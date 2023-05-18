@@ -20,7 +20,7 @@ struct Booking {
 
 /**
  * The class that handles the seat assignments in a theater. This is technically not
- * a theater, only one premiere in it. This way, multiple movies can be booked at the
+ * a theater, only one show in it. This way, multiple movies can be booked at the
  * same time, with the least amount of blocking.
  *
  * Currently all theaters have 20 seats in a 4x5 arrangement. This can be changed by

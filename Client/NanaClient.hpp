@@ -9,6 +9,9 @@
 #include "Client.hpp"
 
 
+/**
+ *  A Client for booking tickets/checking shows using the Nana GUI library.
+ */
 class NanaClient : public Client {
 public:
     NanaClient(TheaterAdmin& ta) : Client(ta) {}

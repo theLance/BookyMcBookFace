@@ -30,7 +30,7 @@ public:
     };
 
     /**
-     * Register a new premier. Creates an entry for a theater showing a given movie.
+     * Register a new show. Creates an entry for a theater showing a given movie.
      * Also registers the movie, if it is new.
      *
      * @param theater The name of the theater where the movie is being introduced.

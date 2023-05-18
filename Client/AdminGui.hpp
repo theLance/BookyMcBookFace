@@ -8,6 +8,10 @@
 #include "Movies/TheaterAdmin.hpp"
 
 
+/**
+ * The administrative GUI for the theaters and movies.
+ * This is used to add and remove movie showings for theaters.
+ */
 class AdminGui {
 public:
     AdminGui(TheaterAdmin& tha) : m_admin(tha) {}
