@@ -5,6 +5,8 @@ TDIR = Tests
 TSTOUT = tests.exe
 OUT = run.exe
 
+RMCMD = rm -f
+
 OBJFILES  := $(SRCFILES:%.cpp=%.o)
 TSTOBJFILES := $(TSTFILES:%.cpp=%.o)
 
@@ -38,4 +40,4 @@ tst: $(OUTDIR)/$(TSTOUT)
 # TODO: OS-independent delete
 .PHONY: clean
 clean:
-	@rm -f $(OUTDIR)/$(TSTOUT) $(OUTDIR)/$(OUT) $(OBJFILES) $(TSTOBJFILES)
+	@$(RMCMD) $(OUTDIR)/$(TSTOUT) $(OUTDIR)/$(OUT) $(OBJFILES) $(TSTOBJFILES)
